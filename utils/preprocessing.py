@@ -2,7 +2,7 @@ from langchain_chroma import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.documents import Document
 
-with open('../data/iucn_data.txt') as f:
+with open('../data/raw/iucn_data.txt') as f:
     docs = f.read().split("\n--\n")
 print("Number of documents:", len(docs))
 

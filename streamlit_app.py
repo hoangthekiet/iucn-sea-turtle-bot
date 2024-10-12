@@ -79,13 +79,6 @@ for message in st.session_state.messages:
         st.markdown(message["content"])
 
 
-def generate_chat_responses(chat_completion) -> Generator[str, None, None]:
-    """Yield chat response content from the Groq API response."""
-    for chunk in chat_completion:
-        if chunk.choices[0].delta.content:
-            yield chunk.choices[0].delta.content
-
-
 if prompt := st.chat_input("Enter your prompt here..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
 
@@ -95,11 +88,16 @@ if prompt := st.chat_input("Enter your prompt here..."):
     # Fetch response from Groq API
     try:
         related_docs = st.session_state.retriever.invoke(prompt)
+
+        def _snippet(doc):
+            lines = [line for line in doc.page_content.split("\n") if len(line) > 0]
+            q = lines[0]
+            a = lines[1]
+            return f"{q}\n{a} […]"
+
+        st.markdown("**Nguồn:**\n" + "\n".join(["```\n" + _snippet(d) + "\n```" for d in related_docs]))
+
         full_response = st.session_state.rag_chain.invoke(prompt)
-
-        st.markdown("**Nguồn:**\n```\n" + related_docs[0].page_content + "\n```\n")
-
-        # Use the generator function with st.write_stream
         with st.chat_message("assistant", avatar="🐾"):
             st.markdown(full_response)
     except Exception as e:
