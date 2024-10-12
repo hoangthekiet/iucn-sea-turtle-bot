@@ -20,7 +20,7 @@ TOKENIZERS_PARALLELISM = os.getenv("TOKENIZERS_PARALLELISM", False)
 MAX_EMBED_TOKEN = 8000
 
 
-st.set_page_config(page_icon="💬", layout="wide", page_title="Bắt đầu! 🌊🌊🌊")
+st.set_page_config(page_icon="💬", layout="wide", page_title="Rùa biển 🌊🌊🌊")
 
 def icon(emoji: str):
     """Shows an emoji as a Notion-style page icon."""
@@ -29,9 +29,10 @@ def icon(emoji: str):
         unsafe_allow_html=True,
     )
 
-icon("🐢")
 
-st.subheader("Hỏi Đáp Về Rùa Biển — IUCN Việt Nam", divider="rainbow", anchor=False)
+# icon("🐢")
+st.image("assets/logo-iucn.png", width=78)
+st.subheader("Hỏi Đáp Về Rùa Biển — IUCN 🇻🇳", divider="rainbow", anchor=False)
 
 
 if not GROQ_API_KEY:
@@ -51,7 +52,8 @@ models = [
 @st.cache_resource
 def load_embed_model(embed_model_name = "dangvantuan/vietnamese-embedding-LongContext"):
     return HuggingFaceEmbeddings(model_name=embed_model_name,
-                                 model_kwargs={"trust_remote_code": True})
+                                 model_kwargs={"trust_remote_code": True},
+                                 cache_folder="./model_dir/")
 
 if "selected_model" not in st.session_state:
     model_option = models[1]
