@@ -4,39 +4,35 @@ sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
 import os
 import streamlit as st
-from typing import Generator
+from dotenv import load_dotenv
+
 from langchain_groq import ChatGroq
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 from langchain_chroma import Chroma
-from dotenv import load_dotenv
-from server.constants.prompt import RAG_PROMPT, format_docs
+
+from server.constants.prompt import RAG_PROMPT
+from server.constants.view import ICON_BOT, ICON_USER, ICON_ERROR
+from utils.formatter import format_docs, format_references
 
 
+# Load environment variables
 load_dotenv()
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", None)
+LLM_NAME = os.getenv("LLM_NAME", None)
+EMBED_MODEL_HF = os.getenv("EMBED_MODEL_HF", "dangvantuan/vietnamese-embedding-LongContext") # jinaai/jina-embeddings-v3
 TOKENIZERS_PARALLELISM = os.getenv("TOKENIZERS_PARALLELISM", False)
-MAX_EMBED_TOKEN = 8000
+NUM_DOC = int(os.getenv("NUM_DOC", 3))
+MAX_EMBED_TOKEN = int(os.getenv("MAX_EMBED_TOKEN", 8000))
 
 
+# Setup page header
 st.set_page_config(page_icon="💬", layout="wide", page_title="Rùa biển 🌊🌊🌊")
+st.image("assets/logo-iucn.png")
+st.subheader("Hỏi Đáp Về Rùa Biển 🇻🇳", divider="rainbow", anchor=False)
+st.markdown(f"*Powered by `{LLM_NAME}` via **GroqCloud™**.*")
 
-def icon(emoji: str):
-    """Shows an emoji as a Notion-style page icon."""
-    st.write(
-        f'<span style="font-size: 78px; line-height: 1">{emoji}</span>',
-        unsafe_allow_html=True,
-    )
-
-
-# icon("🐢")
-st.image("assets/logo-iucn.png", width=78)
-st.subheader("Hỏi Đáp Về Rùa Biển — IUCN 🇻🇳", divider="rainbow", anchor=False)
-
-
-if not GROQ_API_KEY:
-    GROQ_API_KEY = st.text_input("Groq Key")
 
 # Initialize chat history and selected model
 if "messages" not in st.session_state:
@@ -50,19 +46,19 @@ models = [
 ]
 
 @st.cache_resource
-def load_embed_model(embed_model_name = "dangvantuan/vietnamese-embedding-LongContext"):
+def load_embed_model(embed_model_name = EMBED_MODEL_HF):
     return HuggingFaceEmbeddings(model_name=embed_model_name,
                                  model_kwargs={"trust_remote_code": True},
                                  cache_folder="./model_dir/")
 
 if "selected_model" not in st.session_state:
-    model_option = models[1]
+    model_option = LLM_NAME if LLM_NAME else models[1]
     st.session_state.selected_model = model_option
     rag_llm = ChatGroq(model=model_option, temperature=0.3)
 
-    embed_model = load_embed_model() # jinaai/jina-embeddings-v3
+    embed_model = load_embed_model()
     vectorstore = Chroma(persist_directory="./data/chroma_db", collection_name="groq_rag", embedding_function=embed_model)
-    st.session_state.retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
+    st.session_state.retriever = vectorstore.as_retriever(search_kwargs={"k": NUM_DOC})
 
     st.session_state.rag_chain = (
         {
@@ -76,34 +72,25 @@ if "selected_model" not in st.session_state:
 
 # Display chat messages from history on app rerun
 for message in st.session_state.messages:
-    avatar = "🐾" if message["role"] == "assistant" else "👨‍💻"
+    avatar = ICON_BOT if message["role"] == "assistant" else ICON_USER
     with st.chat_message(message["role"], avatar=avatar):
         st.markdown(message["content"])
 
-
-if prompt := st.chat_input("Enter your prompt here..."):
+# Display chat view
+if prompt := st.chat_input("Mời bạn đặt câu hỏi về Rùa biển..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
+    st.chat_message("user", avatar=ICON_USER).write(prompt)
 
-    with st.chat_message("user", avatar="👨‍💻"):
-        st.markdown(prompt)
-
-    # Fetch response from Groq API
     try:
-        related_docs = st.session_state.retriever.invoke(prompt)
-
-        def _snippet(doc):
-            lines = [line for line in doc.page_content.split("\n") if len(line) > 0]
-            q = lines[0]
-            a = lines[1]
-            return f"{q}\n{a} […]"
-
-        st.markdown("**Nguồn:**\n" + "\n".join(["```\n" + _snippet(d) + "\n```" for d in related_docs]))
-
+        # Fetch response from Groq API
         full_response = st.session_state.rag_chain.invoke(prompt)
-        with st.chat_message("assistant", avatar="🐾"):
-            st.markdown(full_response)
+        st.chat_message("assistant", avatar=ICON_BOT).write(full_response)
+        # Display references
+        references = st.session_state.retriever.invoke(prompt)
+        with st.expander(label = "**Nguồn**\n"):
+            st.markdown(format_references(references))
     except Exception as e:
-        st.error(e, icon="🚨")
+        st.error(e, icon=ICON_ERROR)
 
     # Append the full response to session_state.messages
     if isinstance(full_response, str):

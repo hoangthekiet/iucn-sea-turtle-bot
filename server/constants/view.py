@@ -1,0 +1,4 @@
+ICON_USER = "👨‍💻"
+ICON_BOT = "🐾"
+ICON_ERROR = "🚨"
+ICON_TURTLE = "🐢"

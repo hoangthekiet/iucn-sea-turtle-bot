@@ -1,5 +1,3 @@
-from typing import List
-from langchain_core.documents import Document
 from langchain.prompts import ChatPromptTemplate
 
 
@@ -17,7 +15,3 @@ RAG_PROMPT = ChatPromptTemplate.from_messages([
     ("system", RAG_SYSTEM_PROMPT),
     ("human", RAG_HUMAN_PROMPT)
 ])
-
-def format_docs(docs: List[Document]):
-    """Format the retrieved documents"""
-    return "\n".join(doc.page_content for doc in docs)
