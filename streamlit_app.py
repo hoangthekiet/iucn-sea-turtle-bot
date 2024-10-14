@@ -12,6 +12,7 @@ from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 from langchain_chroma import Chroma
 
+from server.constants.models import LLMTags, EmbedModelNames
 from server.constants.prompt import RAG_PROMPT
 from server.constants.view import ICON_BOT, ICON_USER, ICON_ERROR
 from utils.formatter import format_docs, format_references
@@ -20,8 +21,8 @@ from utils.formatter import format_docs, format_references
 # Load environment variables
 load_dotenv()
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", None)
-LLM_NAME = os.getenv("LLM_NAME", None)
-EMBED_MODEL_HF = os.getenv("EMBED_MODEL_HF", "dangvantuan/vietnamese-embedding-LongContext") # jinaai/jina-embeddings-v3
+LLM_OPTION = os.getenv("LLM_NAME", LLMTags.LLAMA_3_2)
+EMBED_MODEL_HF = os.getenv("EMBED_MODEL_HF", EmbedModelNames.VIET_LONG)
 TOKENIZERS_PARALLELISM = os.getenv("TOKENIZERS_PARALLELISM", False)
 NUM_DOC = int(os.getenv("NUM_DOC", 3))
 MAX_EMBED_TOKEN = int(os.getenv("MAX_EMBED_TOKEN", 8000))
@@ -31,35 +32,26 @@ MAX_EMBED_TOKEN = int(os.getenv("MAX_EMBED_TOKEN", 8000))
 st.set_page_config(page_icon="💬", layout="wide", page_title="Rùa biển 🌊🌊🌊")
 st.image("assets/logo-iucn.png")
 st.subheader("Hỏi Đáp Về Rùa Biển 🇻🇳", divider="rainbow", anchor=False)
-st.markdown(f"*Powered by `{LLM_NAME}` via **GroqCloud™**.*")
+st.markdown(f"*Powered by `{LLM_OPTION}` via **GroqCloud™**.*")
 
 
 # Initialize chat history and selected model
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Define model details
-models = [
-    "llama-3.1-8b-instant", # "name": "LLaMA3-8b-Instant", "tokens": 8192, "developer": "Meta"
-    "llama-3.2-11b-text-preview", # "name": "LLaMA3-11b-Preview", "tokens": 8192, "developer": "Meta"}
-    "gemma2-9b-it" # "name": "Gemma2-9b-it", "tokens": 8192, "developer": "Google"
-]
-
 @st.cache_resource
-def load_embed_model(embed_model_name = EMBED_MODEL_HF):
+def load_embed_model(embed_model_name):
     return HuggingFaceEmbeddings(model_name=embed_model_name,
                                  model_kwargs={"trust_remote_code": True},
                                  cache_folder="./model_dir/")
 
 if "selected_model" not in st.session_state:
-    model_option = LLM_NAME if LLM_NAME else models[1]
-    st.session_state.selected_model = model_option
-    rag_llm = ChatGroq(model=model_option, temperature=0.3)
-
-    embed_model = load_embed_model()
+    embed_model = load_embed_model(EMBED_MODEL_HF)
     vectorstore = Chroma(persist_directory="./data/chroma_db", collection_name="groq_rag", embedding_function=embed_model)
     st.session_state.retriever = vectorstore.as_retriever(search_kwargs={"k": NUM_DOC})
 
+    st.session_state.selected_model = LLM_OPTION
+    rag_llm = ChatGroq(model=LLM_OPTION, temperature=0.3)
     st.session_state.rag_chain = (
         {
             "context": st.session_state.retriever | format_docs, # Use retriever to retrieve docs from vectorstore -> format the documents into a string
