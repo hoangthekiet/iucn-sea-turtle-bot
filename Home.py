@@ -14,7 +14,7 @@ from langchain_chroma import Chroma
 
 from server.constants.models import LLMTags, EmbedModelNames
 from server.constants.prompt import RAG_PROMPT
-from server.constants.view import ICON_BOT, ICON_USER, ICON_ERROR
+from server.constants.view import ICON_BOT, ICON_USER, ICON_ERROR, ABOUT, DISCLAIMER
 from utils.formatter import format_docs, format_references
 
 
@@ -32,8 +32,7 @@ MAX_EMBED_TOKEN = int(os.getenv("MAX_EMBED_TOKEN", 8000))
 st.set_page_config(page_icon="💬", layout="wide", page_title="Rùa biển 🌊🌊🌊")
 st.image("assets/logo-iucn.png")
 st.subheader("Hỏi Đáp Về Rùa Biển 🇻🇳", divider="rainbow", anchor=False)
-st.markdown(f"*Powered by `{LLM_OPTION}` via **GroqCloud™**.*")
-
+st.markdown(f"*Powered by `{'-'.join(LLM_OPTION.split('-')[:2])}` via **Groq™**.*")
 
 # Initialize chat history and selected model
 if "messages" not in st.session_state:
@@ -65,8 +64,7 @@ if "selected_model" not in st.session_state:
 # Display chat messages from history on app rerun
 for message in st.session_state.messages:
     avatar = ICON_BOT if message["role"] == "assistant" else ICON_USER
-    with st.chat_message(message["role"], avatar=avatar):
-        st.markdown(message["content"])
+    st.chat_message(message["role"], avatar=avatar).write(message["content"])
 
 # Display chat view
 if prompt := st.chat_input("Mời bạn đặt câu hỏi về Rùa biển..."):

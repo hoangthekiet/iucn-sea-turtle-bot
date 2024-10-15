@@ -22,6 +22,13 @@ This project aims to provide two interfaces:
 ## Project directory
 
 ## Chat UI
-`streamlit run streamlit_app.py`
+`python -m streamlit run Home.py`
 ## RESTful API
 `python flask_app.py`
+## License
+Usage of this project is subject to the MIT License.
+## Cite
+https://iucn.org/sites/default/files/2023-02/101-q-a-about-marine-turtle-conservation-final.pdf
+https://github.com/groq/groq-api-cookbook/blob/main/tutorials/groq-gradio/groq-gradio-tutorial.ipynb
+https://github.com/groq/groq-api-cookbook/blob/main/tutorials/benchmarking-rag-langchain/benchmarking_rag.ipynb
+
