@@ -26,13 +26,21 @@ EMBED_MODEL_HF = os.getenv("EMBED_MODEL_HF", EmbedModelNames.VIET_LONG)
 TOKENIZERS_PARALLELISM = os.getenv("TOKENIZERS_PARALLELISM", False)
 NUM_DOC = int(os.getenv("NUM_DOC", 3))
 MAX_EMBED_TOKEN = int(os.getenv("MAX_EMBED_TOKEN", 8000))
+TEMPERATURE = float(os.getenv("TEMPERATURE", 0.3))
 
 
-# Setup page header
-st.set_page_config(page_icon="💬", layout="wide", page_title="Rùa biển 🌊🌊🌊")
-st.image("assets/logo-iucn.png")
+# Setup page layout
+st.set_page_config(page_icon="💬",
+                   layout="wide",
+                   page_title="Rùa biển 🌊🌊🌊",
+                   menu_items={"About": f"*Powered by `{'-'.join(LLM_OPTION.split('-')[:2])}` via **Groq®**.*",
+                               "Get help": "mailto:hoangthekiet@gmail.com",
+                               "Report a bug": "https://docs.google.com/forms/d/e/1FAIpQLScgzuGFF7v8Fyxwnjm_KR71Wx1YX1_F2FhuhsQCE3bzzzpjwQ/viewform?usp=sf_link"})
+with st.sidebar:
+    st.image("assets/logo-iucn.png")
+    st.info(ABOUT)
+    st.warning(DISCLAIMER)
 st.subheader("Hỏi Đáp Về Rùa Biển 🇻🇳", divider="rainbow", anchor=False)
-st.markdown(f"*Powered by `{'-'.join(LLM_OPTION.split('-')[:2])}` via **Groq™**.*")
 
 # Initialize chat history and selected model
 if "messages" not in st.session_state:
@@ -50,7 +58,7 @@ if "selected_model" not in st.session_state:
     st.session_state.retriever = vectorstore.as_retriever(search_kwargs={"k": NUM_DOC})
 
     st.session_state.selected_model = LLM_OPTION
-    rag_llm = ChatGroq(model=LLM_OPTION, temperature=0.3)
+    rag_llm = ChatGroq(model=LLM_OPTION, temperature=TEMPERATURE)
     st.session_state.rag_chain = (
         {
             "context": st.session_state.retriever | format_docs, # Use retriever to retrieve docs from vectorstore -> format the documents into a string
