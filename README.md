@@ -22,7 +22,7 @@ This project aims to provide two interfaces:
 ## Project directory
 
 ## Chat UI
-`python -m streamlit run Home.py`
+`python -m streamlit run streamlit_app.py`
 ## RESTful API
 `python flask_app.py`
 ## License
