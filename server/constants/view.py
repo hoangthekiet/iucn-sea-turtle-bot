@@ -3,7 +3,7 @@ ICON_BOT = "🐾"
 ICON_ERROR = "🚨"
 ICON_TURTLE = "🐢"
 ABOUT = """\
-## Sea Turtle Conservation AI Assistant
+### Sea Turtle Conservation AI Assistant
 
 _This assistant was created as a volunteer project to support the IUCN's sea turtle conservation program in Vietnam. We aim to provide a friendly and informative platform for those interested in sea turtles and the marine environment._
 
@@ -12,7 +12,7 @@ _Our primary data source is the **IUCN**'s [101 Q&A Handbook](https://iucn.org/s
 Made by Kiet and Chi with ❤️.
 """
 DISCLAIMER = """\
-⚠️ **Disclaimer:**
+⚠️ **DISCLAIMER**
 
 _Please note that this assistant is intended to provide general information about sea turtle conservation. It is not a substitute for professional advice or assistance._
 

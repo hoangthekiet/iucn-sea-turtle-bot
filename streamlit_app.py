@@ -30,16 +30,26 @@ TEMPERATURE = float(os.getenv("TEMPERATURE", 0.3))
 
 
 # Setup page layout
+def icon(emoji: str):
+    """Shows an emoji as a Notion-style page icon."""
+    st.write(
+        f'<span style="font-size: 78px; line-height: 1">{emoji}</span>',
+        unsafe_allow_html=True,
+    )
+
 st.set_page_config(page_icon="💬",
                    layout="wide",
-                   page_title="Rùa biển 🌊🌊🌊",
-                   menu_items={"About": f"*Powered by `{'-'.join(LLM_OPTION.split('-')[:2])}` via **Groq®**.*",
+                   page_title="Hỏi Đáp Về Rùa Biển",
+                   menu_items={"About": f"*Powered by `{'-'.join(LLM_OPTION.split('-')[:2])}` via **Groq®**.*\n--",
                                "Get help": "mailto:hoangthekiet@gmail.com",
                                "Report a bug": "https://docs.google.com/forms/d/e/1FAIpQLScgzuGFF7v8Fyxwnjm_KR71Wx1YX1_F2FhuhsQCE3bzzzpjwQ/viewform?usp=sf_link"})
+
 with st.sidebar:
-    st.image("assets/logo-iucn.png")
+    st.image("https://upload.wikimedia.org/wikipedia/commons/f/fa/IUCN_logo.svg", width=64)
     st.info(ABOUT)
     st.warning(DISCLAIMER)
+
+icon("💬")
 st.subheader("Hỏi Đáp Về Rùa Biển 🇻🇳", divider="rainbow", anchor=False)
 
 # Initialize chat history and selected model
@@ -75,7 +85,7 @@ for message in st.session_state.messages:
     st.chat_message(message["role"], avatar=avatar).write(message["content"])
 
 # Display chat view
-if prompt := st.chat_input("Mời bạn đặt câu hỏi về Rùa biển..."):
+if prompt := st.chat_input("Mời bạn đặt câu hỏi về Rùa biển...", max_chars=100):
     st.session_state.messages.append({"role": "user", "content": prompt})
     st.chat_message("user", avatar=ICON_USER).write(prompt)
 
@@ -85,7 +95,7 @@ if prompt := st.chat_input("Mời bạn đặt câu hỏi về Rùa biển..."):
         st.chat_message("assistant", avatar=ICON_BOT).write(full_response)
         # Display references
         references = st.session_state.retriever.invoke(prompt)
-        with st.expander(label = "**Nguồn**\n"):
+        with st.expander(label = "**Nguồn dữ liệu**\n"):
             st.markdown(format_references(references))
     except Exception as e:
         st.error(e, icon=ICON_ERROR)
