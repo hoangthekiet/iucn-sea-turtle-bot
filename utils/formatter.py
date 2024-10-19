@@ -15,3 +15,6 @@ def _snippet(doc: Document) -> str:
 
 def format_references(source: List[Document]) -> str:
     return "\n".join(["```\n" + _snippet(d) + "\n```" for d in source])
+
+def format_about(llm_tag: str) -> str:
+    return f"*Powered by `{'-'.join(llm_tag.split('-')[:2])}` via **Groq®**.*\n--"

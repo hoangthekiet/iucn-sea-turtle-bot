@@ -2,9 +2,7 @@ __import__('pysqlite3')
 import sys
 sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
-import os
 import streamlit as st
-from dotenv import load_dotenv
 
 from langchain_groq import ChatGroq
 from langchain_huggingface import HuggingFaceEmbeddings
@@ -12,21 +10,10 @@ from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 from langchain_chroma import Chroma
 
-from server.constants.models import LLMTags, EmbedModelNames
+from server.config import BaseConfig
 from server.constants.prompt import RAG_PROMPT
 from server.constants.view import ICON_BOT, ICON_USER, ICON_ERROR, ABOUT, DISCLAIMER
-from utils.formatter import format_docs, format_references
-
-
-# Load environment variables
-load_dotenv()
-GROQ_API_KEY = os.getenv("GROQ_API_KEY", None)
-LLM_OPTION = os.getenv("LLM_NAME", LLMTags.LLAMA_3_2)
-EMBED_MODEL_HF = os.getenv("EMBED_MODEL_HF", EmbedModelNames.VIET_LONG)
-TOKENIZERS_PARALLELISM = os.getenv("TOKENIZERS_PARALLELISM", False)
-NUM_DOC = int(os.getenv("NUM_DOC", 3))
-MAX_EMBED_TOKEN = int(os.getenv("MAX_EMBED_TOKEN", 8000))
-TEMPERATURE = float(os.getenv("TEMPERATURE", 0.3))
+from utils.formatter import format_docs, format_references, format_about
 
 
 # Setup page layout
@@ -40,7 +27,7 @@ def icon(emoji: str):
 st.set_page_config(page_icon="💬",
                    layout="wide",
                    page_title="Hỏi Đáp Về Rùa Biển",
-                   menu_items={"About": f"*Powered by `{'-'.join(LLM_OPTION.split('-')[:2])}` via **Groq®**.*\n--",
+                   menu_items={"About": format_about(BaseConfig.LLM_OPTION),
                                "Get help": "mailto:hoangthekiet@gmail.com",
                                "Report a bug": "https://docs.google.com/forms/d/e/1FAIpQLScgzuGFF7v8Fyxwnjm_KR71Wx1YX1_F2FhuhsQCE3bzzzpjwQ/viewform?usp=sf_link"})
 
@@ -57,18 +44,24 @@ if "messages" not in st.session_state:
     st.session_state.messages = []
 
 @st.cache_resource
-def load_embed_model(embed_model_name):
-    return HuggingFaceEmbeddings(model_name=embed_model_name,
+def load_embed_model() -> HuggingFaceEmbeddings:
+    return HuggingFaceEmbeddings(model_name=BaseConfig.EMBED_MODEL_HF,
                                  model_kwargs={"trust_remote_code": True},
-                                 cache_folder="./model_dir/")
+                                 cache_folder=BaseConfig.CACHE_FOLDER)
+
+@st.cache_resource
+def load_vector_store(embed_model: HuggingFaceEmbeddings) -> Chroma:
+    return Chroma(persist_directory=BaseConfig.VECTOR_DB_DIR,
+                  collection_name=BaseConfig.VECTOR_DB_CLT,
+                  embedding_function=embed_model)
 
 if "selected_model" not in st.session_state:
-    embed_model = load_embed_model(EMBED_MODEL_HF)
-    vectorstore = Chroma(persist_directory="./data/chroma_db", collection_name="groq_rag", embedding_function=embed_model)
-    st.session_state.retriever = vectorstore.as_retriever(search_kwargs={"k": NUM_DOC})
+    embed_model = load_embed_model()
+    vector_store = load_vector_store(embed_model)
+    st.session_state.retriever = vector_store.as_retriever(search_kwargs={"k": BaseConfig.NUM_DOC})
 
-    st.session_state.selected_model = LLM_OPTION
-    rag_llm = ChatGroq(model=LLM_OPTION, temperature=TEMPERATURE)
+    st.session_state.selected_model = BaseConfig.LLM_OPTION
+    rag_llm = ChatGroq(model=BaseConfig.LLM_OPTION, temperature=BaseConfig.TEMPERATURE)
     st.session_state.rag_chain = (
         {
             "context": st.session_state.retriever | format_docs, # Use retriever to retrieve docs from vectorstore -> format the documents into a string
