@@ -46,7 +46,7 @@ This project aims to provide two interfaces:
 `python -m streamlit run streamlit_app.py`
 ## RESTful API
 * Build Docker images: `docker build -t sea-turtle:1.0 .`
-* Run docker image: `docker run -p 5000:5000 -it sea-turtle:1.0`
+* Run docker image: `docker run -p 80:5000 -e GROQ_API_KEY=$KEY -e EMBED_MODEL_HF=$MODEL -it sea-turtle:1.0`
 * Run server instantly: `python flask_run.py`
 * Request:
 ```curl --location '<endpoint>/sea-turtle/chat-service/chat' \

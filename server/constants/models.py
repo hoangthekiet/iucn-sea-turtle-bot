@@ -5,5 +5,6 @@ class LLMTags():
 
 
 class EmbedModelNames():
-    VIET_LONG = "dangvantuan/vietnamese-embedding-LongContext",
+    VI_SHORT = "keepitreal/vietnamese-sbert",
+    VI_LONG = "dangvantuan/vietnamese-embedding-LongContext",
     JINA_V3 = "jinaai/jina-embeddings-v3"
