@@ -49,15 +49,11 @@ def load_embed_model() -> HuggingFaceEmbeddings:
                                  model_kwargs={"trust_remote_code": True},
                                  cache_folder=BaseConfig.CACHE_FOLDER)
 
-@st.cache_resource
-def load_vector_store(embed_model: HuggingFaceEmbeddings) -> Chroma:
-    return Chroma(persist_directory=BaseConfig.VECTOR_DB_DIR,
-                  collection_name=BaseConfig.VECTOR_DB_CLT,
-                  embedding_function=embed_model)
-
 if "selected_model" not in st.session_state:
     embed_model = load_embed_model()
-    vector_store = load_vector_store(embed_model)
+    vector_store = Chroma(persist_directory=BaseConfig.VECTOR_DB_DIR,
+                          collection_name=BaseConfig.VECTOR_DB_CLT,
+                          embedding_function=embed_model)
     st.session_state.retriever = vector_store.as_retriever(search_kwargs={"k": BaseConfig.NUM_DOC})
 
     st.session_state.selected_model = BaseConfig.LLM_OPTION
