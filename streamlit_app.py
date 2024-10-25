@@ -2,6 +2,7 @@ __import__('pysqlite3')
 import sys
 sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
+import random
 import streamlit as st
 
 from langchain_groq import ChatGroq
@@ -45,6 +46,9 @@ if "messages" not in st.session_state:
 
 @st.cache_resource
 def load_embed_model() -> HuggingFaceEmbeddings:
+    """
+    Load embedding model from Huggingface.
+    """
     return HuggingFaceEmbeddings(model_name=BaseConfig.EMBED_MODEL_HF,
                                  model_kwargs={"trust_remote_code": True},
                                  cache_folder=BaseConfig.CACHE_FOLDER)
@@ -68,10 +72,12 @@ if "selected_model" not in st.session_state:
         | StrOutputParser() # Parse through LLM response to get only the string response
     )
 
+
 # Display chat messages from history on app rerun
 for message in st.session_state.messages:
     avatar = ICON_BOT if message["role"] == "assistant" else ICON_USER
     st.chat_message(message["role"], avatar=avatar).write(message["content"])
+
 
 # Display chat view
 if prompt := st.chat_input("Mời bạn đặt câu hỏi về Rùa biển...", max_chars=100):
@@ -94,3 +100,20 @@ if prompt := st.chat_input("Mời bạn đặt câu hỏi về Rùa biển...", 
         st.session_state.messages.append(
             {"role": "assistant", "content": full_response}
         )
+
+
+def get_samples(k: int):
+    """
+    Get `k` random question samples from predefined dataset.
+    """
+    if "samples" not in st.session_state:
+        with open("assets/examples.txt") as f:
+            st.session_state.samples = f.read().splitlines()
+    return random.sample(st.session_state.samples, 3)
+
+# Display suggestions
+cols = st.columns(3)
+questions = get_samples(3)
+for col, s in zip(cols, questions):
+    with col:
+        st.markdown(f"```\n{s}\n```")
