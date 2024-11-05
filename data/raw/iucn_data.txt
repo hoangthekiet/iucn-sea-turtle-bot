@@ -74,7 +74,7 @@ Ghi chú:
 - EN (Endangered): Nguy cấp
 - VU (Vulnerable): Sẽ nguy cấp
 --
-Loài rùa nào được xếp vào nhóm nguy cấp nhất ở Việt Nam?
+Những loài rùa nào đang nguy cấp nhất ở Việt Nam?
 Hai loài rùa bị xếp vào nhóm rất nguy cấp (CR) trong Sách đỏ Việt Nam là Quản đồng và Rùa da.
 --
 Rùa biển phân bố tại các sinh cảnh nào?
@@ -273,7 +273,7 @@ Các loại rác thải, đặc biệt là lưới ma (lưới bị hỏng trôi
 Khai thác cát, khai thác khoáng sản có ảnh hưởng thế nào đến rùa biển?
 Việc khai thác cát và khoáng sản trên các bãi biển có rùa biển lên đẻ sẽ làm giảm diện tích của bãi, tăng khả năng xói lở của bờ biển, làm ô nhiễm môi trường các bãi cát. Bên cạnh đó, tiếng động và ánh sáng tạo ra từ các thiết bị cơ khí máy móc phục vụ cho việc khai thác cát sẽ làm cho rùa biển sợ và không lên đẻ tại khu vực đó nữa.
 --
-Đánh bắt rùa biển có chủ ý ảnh hưởng thế nào đến rùa biển
+Đánh bắt rùa biển có chủ ý ảnh hưởng thế nào đến rùa biển?
 Đánh bắt rùa biển phục vụ cho nhu cầu thực phẩm, chế tác các sản phẩm thủ công mỹ nghệ bán trong nước hoặc xuất khẩu đi nước ngoài là nguyên nhân chính gây ra sự suy giảm số lượng rùa biển tại Việt Nam và trên toàn thế giới. Trước đây, do đời sống kinh tế của người dân còn nhiều khó khăn và rùa biển chưa được quan tâm bảo vệ đúng mức, người dân tại khu vực bờ biển các đảo và đất liền thường đi đánh bắt rùa biển có chủ đích, phục vụ cho nhu cầu thực phẩm của bản thân và cộng đồng. Do đó, rùa biển bị đánh bắt một cách tận diệt, từ trứng cho đến con non, con trưởng thành. Tại một số khu vực dân cư sống sát bãi rùa đẻ hoặc trên các đảo, gần như 100% trứng rùa bị đào và rùa mẹ lên đẻ bị bắt. Việc này kéo dài qua vài chục năm và hậu quả là hiện nay còn rất ít khu vực còn rùa biển lên đẻ tại Việt Nam.
 --
 Đánh bắt rùa biển không chủ ý có ảnh hưởng gì đến rùa biển?
