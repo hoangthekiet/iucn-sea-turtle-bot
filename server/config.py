@@ -20,7 +20,7 @@ class BaseConfig(object):
     UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', '/tmp')
     SERVICE_NAME = os.getenv('SERVICE_NAME', 'sea-turtle')
     GROQ_API_KEY = os.getenv("GROQ_API_KEY", None)
-    LLM_OPTION = os.getenv("LLM_NAME", LLMTags.LLAMA_3_1)
+    LLM_OPTION = os.getenv("LLM_NAME", LLMTags.LLAMA_3_3)
     EMBED_MODEL_HF = os.getenv("EMBED_MODEL_HF", EmbedModelNames.VI_LONG)
     CACHE_FOLDER = os.getenv('CACHE_FOLDER', './model_dir/')
     VECTOR_DB_DIR = os.getenv('VECTOR_DB_DIR', './data/chroma_db/' + EMBED_MODEL_HF.split('/')[-1])
