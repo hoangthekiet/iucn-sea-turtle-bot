@@ -1,7 +1,9 @@
 import os
 import requests
-from flask import jsonify
-# from server.extensions import transcriber
+try:
+    from flask import jsonify
+except ImportError as e:
+    print(e)
 
 
 class BaseService:
