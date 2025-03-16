@@ -5,15 +5,13 @@ sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 import random
 import streamlit as st
 
-from langchain_groq import ChatGroq
 from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_core.runnables import RunnablePassthrough
-from langchain_core.output_parsers import StrOutputParser
 from langchain_chroma import Chroma
 
 from server.config import BaseConfig
-from server.constants.prompt import RAG_PROMPT
+from server.constants.prompt import RAG_TEMPLATE
 from server.constants.view import ICON_BOT, ICON_USER, ICON_ERROR, ABOUT, DISCLAIMER
+from server.services.ChatService import ChatService
 from utils.formatter import format_docs, format_references, format_about
 
 
@@ -58,20 +56,10 @@ if "selected_model" not in st.session_state:
     vector_store = Chroma(persist_directory=BaseConfig.VECTOR_DB_DIR,
                           collection_name=BaseConfig.VECTOR_DB_CLT,
                           embedding_function=embed_model)
-    st.session_state.retriever = vector_store.as_retriever(search_kwargs={"k": BaseConfig.NUM_DOC})
 
     st.session_state.selected_model = BaseConfig.LLM_OPTION
-    rag_llm = ChatGroq(model=BaseConfig.LLM_OPTION, temperature=BaseConfig.TEMPERATURE)
-    st.session_state.rag_chain = (
-        {
-            "context": st.session_state.retriever | format_docs, # Use retriever to retrieve docs from vectorstore -> format the documents into a string
-            "input": RunnablePassthrough() # Propogate the 'input' variable to the next step
-        } 
-        | RAG_PROMPT # format prompt with 'context' and 'input' variables
-        | rag_llm # get response from LLM using the formatted prompt
-        | StrOutputParser() # Parse through LLM response to get only the string response
-    )
-
+    st.session_state.chat_service = ChatService(llm=st.session_state.selected_model, vector_store=vector_store,
+                                                temperature=BaseConfig.TEMPERATURE, num_doc=BaseConfig.NUM_DOC)
 
 # Display chat messages from history on app rerun
 for message in st.session_state.messages:
@@ -81,25 +69,22 @@ for message in st.session_state.messages:
 
 # Display chat view
 if prompt := st.chat_input("Mời bạn đặt câu hỏi về Rùa biển...", max_chars=100):
-    st.session_state.messages.append({"role": "user", "content": prompt})
+    
     st.chat_message("user", avatar=ICON_USER).write(prompt)
 
     try:
         # Fetch response from Groq API
-        full_response = st.session_state.rag_chain.invoke(prompt)
+        references, full_response = st.session_state.chat_service.execute_rag_chain(prompt, st.session_state.messages)
         st.chat_message("assistant", avatar=ICON_BOT).write(full_response)
         # Display references
-        references = st.session_state.retriever.invoke(prompt)
         with st.expander(label = "**Nguồn dữ liệu**\n"):
             st.markdown(format_references(references))
+        # Append the full response to session_state.messages
+        if isinstance(full_response, str):
+            st.session_state.messages.append({"role": "user", "content": prompt})
+            st.session_state.messages.append({"role": "assistant", "content": full_response})
     except Exception as e:
         st.error(e, icon=ICON_ERROR)
-
-    # Append the full response to session_state.messages
-    if isinstance(full_response, str):
-        st.session_state.messages.append(
-            {"role": "assistant", "content": full_response}
-        )
 
 
 def get_samples(k: int):

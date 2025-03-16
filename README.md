@@ -66,6 +66,7 @@ https://iucn.org/sites/default/files/2023-02/101-q-a-about-marine-turtle-conserv
 https://iucn.org/sites/default/files/2024-04/thong-bao-chuong-trinh-tnv-mua-he-nam-2024-link-dang-ky-final.pdf
 
 https://iucn.org/sites/default/files/2024-05/thong-bao-tnv-mua-he-2024-final.pdf
+
 https://github.com/groq/groq-api-cookbook/blob/main/tutorials/groq-gradio/groq-gradio-tutorial.ipynb
 
 https://github.com/groq/groq-api-cookbook/blob/main/tutorials/benchmarking-rag-langchain/benchmarking_rag.ipynb

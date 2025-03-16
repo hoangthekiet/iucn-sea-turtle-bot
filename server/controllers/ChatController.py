@@ -2,7 +2,7 @@ from flask.blueprints import Blueprint
 from flask import request
 
 from server.config import BaseConfig
-from server.extensions import embed_model, vector_store
+from server.extensions import vector_store
 from server.middlewares import Authority
 from server.services import ChatService
 
@@ -24,5 +24,8 @@ def chat():
                                            temperature=temperature,
                                            vector_store=vector_store,
                                            num_doc=num_doc)
-    response = chat_service.chat(query)
-    return chat_service.build_output(response)
+    context, response = chat_service.execute_rag_flow(query, is_for_api=True)
+    return chat_service.build_output({
+        "context": context,
+        "response": response
+    })

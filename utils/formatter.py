@@ -12,8 +12,11 @@ def format_docs(docs: List[Document]) -> str:
 def _snippet(doc: Document) -> str:
     lines = [line for line in re.split(r'\. |\! |\? |\n', doc.page_content) if len(line) > 0]
     q = lines[0]
-    a = lines[1]
-    return f"{q}\n{a} […]"
+    if len(lines) > 1:
+        a = lines[1][:100]
+        return f"{q}\n{a} […]"
+    else:
+        return q[:100] + " […]"
 
 def format_references(source: List[Document]) -> str:
     return "\n".join(["```\n" + _snippet(d) + "\n```" for d in source])
